@@ -16,13 +16,13 @@ app.post("/api/tts", async (req, res) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: "URL required" });
 
-    /* 1️⃣ Fetch article */
+    // 1️⃣ Fetch article
     const page = await axios.get(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
       timeout: 10000
     });
 
-    /* 2️⃣ Extract readable text */
+    // 2️⃣ Extract readable text
     const dom = new JSDOM(page.data, { url });
     const reader = new Readability(dom.window.document);
     const article = reader.parse();
@@ -34,10 +34,10 @@ app.post("/api/tts", async (req, res) => {
     const text = article.textContent
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 2500); // ElevenLabs-safe
+      .slice(0, 2500); // ElevenLabs safe limit
 
-    /* 3️⃣ ElevenLabs TTS */
-    const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel (default)
+    // 3️⃣ ElevenLabs TTS
+    const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel
     const elevenRes = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
@@ -49,10 +49,7 @@ app.post("/api/tts", async (req, res) => {
         body: JSON.stringify({
           text,
           model_id: "eleven_monolingual_v1",
-          voice_settings: {
-            stability: 0.45,
-            similarity_boost: 0.75
-          }
+          voice_settings: { stability: 0.45, similarity_boost: 0.75 }
         })
       }
     );
